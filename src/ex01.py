@@ -10,21 +10,42 @@ FILE_APPEND = "sentences"
 OUTPUT_DIR = "./output"
 
 #Read files
-text_file = open('speech.txt', 'r')
-text_content = text_file.readlines()
+file = open('speech.txt', 'r')
+file_content = file.readlines()
 
 #Format the sentences
-text_extracted_content = []
+file_extracted_content = []
 
 #Remove and cut blank spaces between each sentences
-for sc in text_content:
+for sc in file_content:
     sentences = sc.split('.')
     for s in sentences:
-        text_extracted_content.append(s.strip())
-text_extracted_content = [s for s in text_extracted_content if s]
+        file_extracted_content.append(s.strip())
+file_extracted_content = [s for s in file_extracted_content if s]
 
-print("Extracted {} sentences from file.".format(len(text_extracted_content)))
+print("\n")
+print("Extracted {} sentences from file.".format(len(file_extracted_content)))
+print("Default output prefix is " + FILE_APPEND + "_#.wav\n")
+print("\n")
 
-print("Default output prefix is " + FILE_APPEND + "_#.wav")
+inputQueue = queue.Queue()
 
-print("Outputting to " + OUTPUT_DIR + "/" + FILE_APPEND + "_#.wav\n")
+def read_kb_input(inputQueue):
+    while True:
+        input_str = input()
+        inputQueue.put(input_str)
+
+#Display text and recording
+def mainRecording():
+    inputThread = threading.Thread(target=read_kb_input, args=(inputQueue,), daemon=True)
+    inputThread.start()
+    i = 0
+    for s in file_extracted_content:
+        print("\"{}.\"\n".format(s))
+        file_name = OUTPUT_DIR + "/" + FILE_APPEND + "_{}.wav".format(i)
+        i += 1
+        print("Output: " + file_name)
+        input("Press any key to start recording.\n")
+    return
+
+mainRecording()
