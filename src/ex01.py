@@ -40,22 +40,69 @@ def read_kb_input(inputQueue):
         input_str = input()
         inputQueue.put(input_str)
 
-#Display text and recording
+new_append = input("Input: ")
+if (new_append):
+    FILE_APPEND = new_append
+ 
+print("Outputting to " + OUTPUT_DIR + "/" + FILE_APPEND + "_#.wav\n")
+
+print("Program will now record the sentences.\n")
+
+#Controls
+EXIT_CMD = "/q"
+
+inputQueue = queue.Queue()
+
+def read_kb_input(inputQueue):
+    while True:
+        input_str = input()
+        inputQueue.put(input_str)
+
+
+q = queue.Queue()
+
+def callback( indata, frames, time, status):
+    #This is called (from a separate thread) for each audio block.
+    if status:
+        print(status, file=sys.stderr)
+    q.put(indata.copy())
+
+def record(file_name):
+
+    try:
+        #Open a new soundfile and attempt recording
+        with sf.SoundFile(file_name, mode='x', samplerate=SAMPLE_RATE, channels=CHANNELS, subtype="PCM_24") as file:
+            with sd.InputStream(samplerate=SAMPLE_RATE, device=sd.default.device, channels=CHANNELS, callback=callback):
+                print("Recording ... ('/q' to stop recording)")
+                
+
+                while True:
+                    file.write(q.get())
+
+                    if (inputQueue.qsize() > 0):
+                        input_str = inputQueue.get()
+                        if (KeyboardInterrupt):
+                            break
+                print("Saved to: {}\n".format(file_name))
+
+    except Exception as e:
+        print(e)
+
+
+
+#Recording
 def mainRecording():
     inputThread = threading.Thread(target=read_kb_input, args=(inputQueue,), daemon=True)
     inputThread.start()
+
     i = 0
     for s in file_extracted_content:
         print("\"{}.\"\n".format(s))
         file_name = OUTPUT_DIR + "/" + FILE_APPEND + "_{}.wav".format(i)
         i += 1
         print("Output: " + file_name)
-        input("Press any key to start recording.\n")
-        recording = sd.rec(int(MAXIMUM_DURATION * SAMPLE_RATE), samplerate = SAMPLE_RATE, channels = CHANNELS)
-        sd.wait()
-        #
-        #Save as WAV file 
-        write(file_name, SAMPLE_RATE, recording)
+        input("Press any key to start recording.")
+        record(file_name)
     return
 
 mainRecording()
