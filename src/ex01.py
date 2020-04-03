@@ -48,8 +48,6 @@ print("Outputting to " + OUTPUT_DIR + "/" + FILE_APPEND + "_#.wav\n")
 
 print("Program will now record the sentences.\n")
 
-#Controls
-EXIT_CMD = "/q"
 
 inputQueue = queue.Queue()
 
@@ -73,9 +71,8 @@ def record(file_name):
         #Open a new soundfile and attempt recording
         with sf.SoundFile(file_name, mode='x', samplerate=SAMPLE_RATE, channels=CHANNELS, subtype="PCM_24") as file:
             with sd.InputStream(samplerate=SAMPLE_RATE, device=sd.default.device, channels=CHANNELS, callback=callback):
-                print("Recording ... ('/q' to stop recording)")
+                print("Recording ... Press any key to stop")
                 
-
                 while True:
                     file.write(q.get())
 
