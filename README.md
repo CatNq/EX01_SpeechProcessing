@@ -1,1 +1,2 @@
-# Week01_SpeechProcessing
+# EX01_SpeechProcessing
+SpeechProcessing Class Project
